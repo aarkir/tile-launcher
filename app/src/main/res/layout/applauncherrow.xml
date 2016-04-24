@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/applauncherrow_imagelinearlayout"
+    android:layout_width="wrap_content"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:padding="6dip">
+-->
+<ImageView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/applauncherrow_icon"
+    android:layout_width="?android:attr/listPreferredItemHeight"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:layout_margin="6dip" />
+
+    <!--
+    <LinearLayout
+        android:id="@+id/applauncherrow_namelinearlayout"
+        android:orientation="vertical"
+        android:layout_width="0dip"
+        android:layout_weight="1"
+        android:layout_height="fill_parent">
+
+        <TextView
+            android:id="@+id/applauncherrow_appname"
+            android:layout_width="fill_parent"
+            android:layout_height="0dip"
+            android:layout_weight="1"
+            android:gravity="center_vertical"/>
+
+    </LinearLayout>
+    -->
