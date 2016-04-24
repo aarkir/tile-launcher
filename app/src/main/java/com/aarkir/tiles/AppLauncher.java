@@ -18,10 +18,8 @@ import android.widget.Toast;
 public class AppLauncher extends ListActivity {
     private ApplicationAdapter appAdapter;
     private ProgressDialog progressDialog;
-    private ArrayList<AppInfo> packageList;
-    private Applications myApps;
+    private ArrayList<AppInfo> apps;
     private SharedPreferences mSharedPreferences;
-    private Map<String, Integer> entrySet;
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -29,13 +27,10 @@ public class AppLauncher extends ListActivity {
 
         this.setContentView(R.layout.applauncher);
 
-        //initialize vars
-        packageList = new ArrayList<>();
-        loadAppsAndFrequencies();
-        setOnLongClickListener();
+        apps = new ArrayList<>();
 
         //adapter
-        appAdapter = new ApplicationAdapter(this, R.layout.applauncherrow, packageList);
+        appAdapter = new ApplicationAdapter(this, R.layout.applauncheritem, apps);
         this.setListAdapter(appAdapter);
 
          Runnable viewApps = new Runnable() {
@@ -49,12 +44,16 @@ public class AppLauncher extends ListActivity {
         appLoaderThread.start();
 
         progressDialog = ProgressDialog.show(AppLauncher.this, "Hold on...", "Loading your apps...", true);
+
+        //initialize vars
+        loadAppsAndFrequencies();
+        setOnLongClickListener();
     }
 
     private void getApps(){
         try{
-            myApps = new Applications(getPackageManager());
-            packageList = myApps.getPackageList();
+            Applications myApps = new Applications(getPackageManager());
+            apps = myApps.getPackageList();
         }
         catch(Exception exception){
             Log.e("BACKGROUND PROC:", exception.getMessage());
@@ -64,10 +63,10 @@ public class AppLauncher extends ListActivity {
 
     private Runnable returnRes = new Runnable(){
         public void run(){
-            if(packageList != null && packageList.size() > 0){
+            if(apps != null && apps.size() > 0){
                 appAdapter.notifyDataSetChanged();
 
-                for(AppInfo app : packageList){
+                for(AppInfo app : apps){
                     appAdapter.add(app);
                 }
             }
@@ -84,14 +83,15 @@ public class AppLauncher extends ListActivity {
         AppInfo rowClicked = (AppInfo) this.getListAdapter().getItem(position);
 
         //increase frequency of app clicked
-        //updateFrequency(rowClicked.getPackageName());
+        updateFrequency(rowClicked.getPackageName());
 
         Intent startApp = new Intent();
         ComponentName component = new ComponentName(rowClicked.getPackageName(), rowClicked.getClassName());
         startApp.setComponent(component);
         startApp.setAction(Intent.ACTION_MAIN);
-        Toast.makeText(this, rowClicked.getClassName(), Toast.LENGTH_SHORT).show();
-        //startActivity(startApp);
+        //Toast.makeText(this, rowClicked.getFrequency(), Toast.LENGTH_SHORT).show();
+
+        startActivity(startApp);
     }
 
     private void setOnLongClickListener() {
@@ -108,26 +108,33 @@ public class AppLauncher extends ListActivity {
     }
 
     private void updateFrequency(String packageName) {
-        //get the editor
         SharedPreferences.Editor mSharedPreferencesEditor = mSharedPreferences.edit();
+
         //increase the value of the package name by 1
-        mSharedPreferencesEditor.putInt(packageName, entrySet.get(packageName)+1);
+        for (AppInfo app : apps) {
+            if (app.getPackageName().equals(packageName)) {
+                app.setFrequency(app.getFrequency() + 1);
+                mSharedPreferencesEditor.putInt(app.getPackageName(), app.getFrequency());
+                break;
+            }
+        }
         //apply the change
         mSharedPreferencesEditor.apply();
     }
 
+    //load initial frequency data from the shared preferences
     private void loadAppsAndFrequencies() {
         //set shared preferences
-        mSharedPreferences = getPreferences(MODE_PRIVATE);
+         mSharedPreferences = getPreferences(MODE_PRIVATE);
 
-        //get apps
+        //for each item in shared preferences
         for(Map.Entry<String, ?> entry : mSharedPreferences.getAll().entrySet()) {
-            entrySet.put(entry.getKey(), Integer.getInteger(entry.getValue().toString()));
-        }
-
-        //add new apps
-        for (AppInfo app : packageList) {
-
+            for (AppInfo app : apps) {
+                if (app.getPackageName().equals(entry.getKey())) {
+                    app.setFrequency(Integer.getInteger(entry.getValue().toString()));
+                    break;
+                }
+            }
         }
     }
 }

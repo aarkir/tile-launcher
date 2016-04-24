@@ -11,8 +11,9 @@ public class AppInfo {
     private String packageName;
     private String className;
     private String versionName;
-    private Integer versionCode;
+    private int versionCode;
     private Drawable icon;
+    private int frequency = 1;
 
     public String getAppName() {
         return appName;
@@ -46,7 +47,7 @@ public class AppInfo {
         this.versionName = versionName;
     }
 
-    public Integer getVersionCode() {
+    public int getVersionCode() {
         return versionCode;
     }
 
@@ -60,5 +61,13 @@ public class AppInfo {
 
     public void setIcon(Drawable icon) {
         this.icon = icon;
+    }
+
+    public int getFrequency () {
+        return frequency;
+    }
+
+    public void setFrequency(int frequency) {
+        this.frequency = frequency;
     }
 }
