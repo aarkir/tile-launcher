@@ -60,6 +60,7 @@ public class Applications {
                 }
             }
         }
+
         return pList;
     }
 

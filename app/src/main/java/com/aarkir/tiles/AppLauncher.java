@@ -13,7 +13,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 public class AppLauncher extends ListActivity {
     private ApplicationAdapter appAdapter;
@@ -29,6 +28,8 @@ public class AppLauncher extends ListActivity {
 
         apps = new ArrayList<>();
 
+        //AdapterView mainView = (AdapterView) findViewById(R.id.main);
+
         //adapter
         appAdapter = new ApplicationAdapter(this, R.layout.applauncheritem, apps);
         this.setListAdapter(appAdapter);
@@ -37,6 +38,9 @@ public class AppLauncher extends ListActivity {
             @Override
             public void run() {
                 getApps();
+                //initialize vars
+                loadAppsAndFrequencies();
+                setOnLongClickListener();
             }
         };
 
@@ -44,10 +48,6 @@ public class AppLauncher extends ListActivity {
         appLoaderThread.start();
 
         progressDialog = ProgressDialog.show(AppLauncher.this, "Hold on...", "Loading your apps...", true);
-
-        //initialize vars
-        loadAppsAndFrequencies();
-        setOnLongClickListener();
     }
 
     private void getApps(){
@@ -84,12 +84,12 @@ public class AppLauncher extends ListActivity {
 
         //increase frequency of app clicked
         updateFrequency(rowClicked.getPackageName());
+        appAdapter.notifyDataSetChanged();
 
         Intent startApp = new Intent();
         ComponentName component = new ComponentName(rowClicked.getPackageName(), rowClicked.getClassName());
         startApp.setComponent(component);
         startApp.setAction(Intent.ACTION_MAIN);
-        //Toast.makeText(this, rowClicked.getFrequency(), Toast.LENGTH_SHORT).show();
 
         startActivity(startApp);
     }
@@ -101,7 +101,6 @@ public class AppLauncher extends ListActivity {
             public boolean onItemLongClick(AdapterView parentView, View childView, int position, long id) {
                 // this will provide the value
                 AppInfo rowClicked = (AppInfo) getListAdapter().getItem(position);
-                Toast.makeText(getApplication(), rowClicked.getAppName(), Toast.LENGTH_LONG).show();
                 return false;
             }
         });
@@ -125,16 +124,18 @@ public class AppLauncher extends ListActivity {
     //load initial frequency data from the shared preferences
     private void loadAppsAndFrequencies() {
         //set shared preferences
-         mSharedPreferences = getPreferences(MODE_PRIVATE);
+        mSharedPreferences = getPreferences(MODE_PRIVATE);
 
         //for each item in shared preferences
         for(Map.Entry<String, ?> entry : mSharedPreferences.getAll().entrySet()) {
             for (AppInfo app : apps) {
                 if (app.getPackageName().equals(entry.getKey())) {
-                    app.setFrequency(Integer.getInteger(entry.getValue().toString()));
+                    app.setFrequency(Integer.parseInt(entry.getValue().toString()));
                     break;
                 }
             }
         }
+
+        //sort list by usage, then alphabetically
     }
 }
