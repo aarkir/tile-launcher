@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Tiles.iml" filepath="$PROJECT_DIR$/Tiles.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/tile-launcher.iml" filepath="$PROJECT_DIR$/tile-launcher.iml" />
     </modules>
   </component>
 </project>
