@@ -63,6 +63,8 @@ public class ApplicationAdapter extends ArrayAdapter<AppInfo> {
                     imageSize = maxImageSize / 3;
                 }
                 LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(imageSize, imageSize);
+                layoutParams.leftMargin = imageSize;
+                layoutParams.topMargin = imageSize;
                 appIcon.setLayoutParams(layoutParams);
             }
         }

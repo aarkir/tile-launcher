@@ -3,7 +3,7 @@ package com.aarkir.tiles;
 import java.util.ArrayList;
 import java.util.Map;
 
-import android.app.ListActivity;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -12,13 +12,15 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ListView;
+import android.widget.RelativeLayout;
 
-public class AppLauncher extends ListActivity {
+public class AppLauncher extends Activity {
     private ApplicationAdapter appAdapter;
     private ProgressDialog progressDialog;
     private ArrayList<AppInfo> apps;
     private SharedPreferences mSharedPreferences;
+    //private AdapterView mainView;
+    private RelativeLayout mainView;
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -28,11 +30,11 @@ public class AppLauncher extends ListActivity {
 
         apps = new ArrayList<>();
 
-        //AdapterView mainView = (AdapterView) findViewById(R.id.main);
+        //mainView = (AdapterView) findViewById(R.id.applauncher_layout);
 
         //adapter
-        appAdapter = new ApplicationAdapter(this, R.layout.applauncheritem, apps);
-        this.setListAdapter(appAdapter);
+        //appAdapter = new ApplicationAdapter(this, R.layout.applauncheritem, apps);
+        //mainView.setAdapter(appAdapter);
 
          Runnable viewApps = new Runnable() {
             @Override
@@ -40,6 +42,7 @@ public class AppLauncher extends ListActivity {
                 getApps();
                 //initialize vars
                 loadAppsAndFrequencies();
+                setOnItemClickListener();
                 setOnLongClickListener();
             }
         };
@@ -76,31 +79,58 @@ public class AppLauncher extends ListActivity {
     };
 
     //add increase usage count
-    @Override
-    protected void onListItemClick(ListView list, View view, int position, long id) {
-        super.onListItemClick(list, view, position, id);
+    private void setOnItemClickListener() {
+        mainView.setClickable(true);
+        mainView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView parentView, View childView, int position, long id) {
+                AppInfo rowClicked = (AppInfo) mainView.getAdapter().getItem(position);
 
-        AppInfo rowClicked = (AppInfo) this.getListAdapter().getItem(position);
+                //increase frequency of app clicked
+                updateFrequency(rowClicked.getPackageName());
+                appAdapter.notifyDataSetChanged();
 
-        //increase frequency of app clicked
-        updateFrequency(rowClicked.getPackageName());
-        appAdapter.notifyDataSetChanged();
+                Intent startApp = new Intent();
+                ComponentName component = new ComponentName(rowClicked.getPackageName(), rowClicked.getClassName());
+                startApp.setComponent(component);
+                startApp.setAction(Intent.ACTION_MAIN);
 
-        Intent startApp = new Intent();
-        ComponentName component = new ComponentName(rowClicked.getPackageName(), rowClicked.getClassName());
-        startApp.setComponent(component);
-        startApp.setAction(Intent.ACTION_MAIN);
-
-        startActivity(startApp);
+                startActivity(startApp);
+            }
+        });
     }
 
+    /**
+    //add increase usage count
+    private void setOnItemClickListener() {
+        mainView.setClickable(true);
+        mainView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView parentView, View childView, int position, long id) {
+                AppInfo rowClicked = (AppInfo) mainView.getAdapter().getItem(position);
+
+                //increase frequency of app clicked
+                updateFrequency(rowClicked.getPackageName());
+                appAdapter.notifyDataSetChanged();
+
+                Intent startApp = new Intent();
+                ComponentName component = new ComponentName(rowClicked.getPackageName(), rowClicked.getClassName());
+                startApp.setComponent(component);
+                startApp.setAction(Intent.ACTION_MAIN);
+
+                startActivity(startApp);
+            }
+        });
+    }
+     **/
+
     private void setOnLongClickListener() {
-        this.getListView().setLongClickable(true);
-        this.getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        mainView.setLongClickable(true);
+        mainView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView parentView, View childView, int position, long id) {
                 // this will provide the value
-                AppInfo rowClicked = (AppInfo) getListAdapter().getItem(position);
+                AppInfo rowClicked = (AppInfo) mainView.getAdapter().getItem(position);
                 return false;
             }
         });
