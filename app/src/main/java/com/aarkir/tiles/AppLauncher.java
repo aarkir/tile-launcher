@@ -12,50 +12,56 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.RelativeLayout;
 
-public class AppLauncher extends Activity {
+import com.aarkir.tiles.model.AppInfo;
+import com.aarkir.tiles.model.Applications;
+import com.aarkir.tiles.widget.ApplicationAdapter;
+import com.felipecsl.asymmetricgridview.library.Utils;
+import com.felipecsl.asymmetricgridview.library.widget.AsymmetricGridView;
+import com.felipecsl.asymmetricgridview.library.widget.AsymmetricGridViewAdapter;
+
+public class AppLauncher extends Activity implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener{
     private ApplicationAdapter appAdapter;
     private ProgressDialog progressDialog;
     private ArrayList<AppInfo> apps;
     private SharedPreferences mSharedPreferences;
-    //private AdapterView mainView;
-    private RelativeLayout mainView;
+    private AsymmetricGridView listView;
 
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+        this.setContentView(R.layout.activity_main);
 
-        this.setContentView(R.layout.applauncher);
-
+        //list of apps
         apps = new ArrayList<>();
-
-        //mainView = (AdapterView) findViewById(R.id.applauncher_layout);
-
         //adapter
-        //appAdapter = new ApplicationAdapter(this, R.layout.applauncheritem, apps);
-        //mainView.setAdapter(appAdapter);
-
+        appAdapter = new ApplicationAdapter(this, R.layout.applauncheritem, apps);
          Runnable viewApps = new Runnable() {
             @Override
             public void run() {
                 getApps();
                 //initialize vars
                 loadAppsAndFrequencies();
-                setOnItemClickListener();
-                setOnLongClickListener();
             }
         };
-
         Thread appLoaderThread = new Thread(null, viewApps, "AppLoaderThread");
         appLoaderThread.start();
-
         progressDialog = ProgressDialog.show(AppLauncher.this, "Hold on...", "Loading your apps...", true);
+
+        //list for the grid view
+        listView = (AsymmetricGridView) findViewById(R.id.listView);
+        listView.setRequestedColumnCount(5);
+        listView.setRequestedHorizontalSpacing(Utils.dpToPx(this, 0));
+        listView.setAdapter(getNewAdapter());
+        listView.setDebugging(true);
+        listView.setOnItemClickListener(this);
     }
 
     private void getApps(){
         try{
+            //generate app info for each app
             Applications myApps = new Applications(getPackageManager());
+            //get app info
             apps = myApps.getPackageList();
         }
         catch(Exception exception){
@@ -78,62 +84,27 @@ public class AppLauncher extends Activity {
         }
     };
 
-    //add increase usage count
-    private void setOnItemClickListener() {
-        mainView.setClickable(true);
-        mainView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView parentView, View childView, int position, long id) {
-                AppInfo rowClicked = (AppInfo) mainView.getAdapter().getItem(position);
+    @Override
+    public void onItemClick(AdapterView parentView, View childView, int position, long id) {
+        AppInfo rowClicked = (AppInfo) listView.getAdapter().getItem(position);
 
-                //increase frequency of app clicked
-                updateFrequency(rowClicked.getPackageName());
-                appAdapter.notifyDataSetChanged();
+        //increase frequency of app clicked
+        updateFrequency(rowClicked.getPackageName());
+        appAdapter.notifyDataSetChanged();
 
-                Intent startApp = new Intent();
-                ComponentName component = new ComponentName(rowClicked.getPackageName(), rowClicked.getClassName());
-                startApp.setComponent(component);
-                startApp.setAction(Intent.ACTION_MAIN);
+        Intent startApp = new Intent();
+        ComponentName component = new ComponentName(rowClicked.getPackageName(), rowClicked.getClassName());
+        startApp.setComponent(component);
+        startApp.setAction(Intent.ACTION_MAIN);
 
-                startActivity(startApp);
-            }
-        });
+        startActivity(startApp);
     }
 
-    /**
-    //add increase usage count
-    private void setOnItemClickListener() {
-        mainView.setClickable(true);
-        mainView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView parentView, View childView, int position, long id) {
-                AppInfo rowClicked = (AppInfo) mainView.getAdapter().getItem(position);
-
-                //increase frequency of app clicked
-                updateFrequency(rowClicked.getPackageName());
-                appAdapter.notifyDataSetChanged();
-
-                Intent startApp = new Intent();
-                ComponentName component = new ComponentName(rowClicked.getPackageName(), rowClicked.getClassName());
-                startApp.setComponent(component);
-                startApp.setAction(Intent.ACTION_MAIN);
-
-                startActivity(startApp);
-            }
-        });
-    }
-     **/
-
-    private void setOnLongClickListener() {
-        mainView.setLongClickable(true);
-        mainView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView parentView, View childView, int position, long id) {
-                // this will provide the value
-                AppInfo rowClicked = (AppInfo) mainView.getAdapter().getItem(position);
-                return false;
-            }
-        });
+    @Override
+    public boolean onItemLongClick(AdapterView parentView, View childView, int position, long id) {
+        // this will provide the value
+        AppInfo rowClicked = (AppInfo) listView.getAdapter().getItem(position);
+        return false;
     }
 
     private void updateFrequency(String packageName) {
@@ -167,5 +138,9 @@ public class AppLauncher extends Activity {
         }
 
         //sort list by usage, then alphabetically
+    }
+
+    private AsymmetricGridViewAdapter getNewAdapter() {
+        return new AsymmetricGridViewAdapter(this, listView, appAdapter);
     }
 }
