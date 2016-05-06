@@ -46,8 +46,6 @@ public class ApplicationAdapter extends ArrayAdapter<AppInfo> implements DemoAda
     public View getView(int position, View convertView, ViewGroup parent){
         View view = convertView;
 
-        double maxFrequency = getMaxFrequency(items);
-
         //if no view is to be recycled
         if(view == null) {
             view = layoutInflater.inflate(R.layout.applauncheritem, parent, false);
@@ -77,16 +75,6 @@ public class ApplicationAdapter extends ArrayAdapter<AppInfo> implements DemoAda
         }
 
         return view;
-    }
-    
-    private double getMaxFrequency(ArrayList<AppInfo> items) {
-        double maxFrequency = 0;
-        for (AppInfo app : items) {
-            if (app.getFrequency() > maxFrequency) {
-                maxFrequency = app.getFrequency();
-            }
-        }
-        return maxFrequency;
     }
 
     @Override

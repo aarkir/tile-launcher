@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Toast;
 
 import com.aarkir.tiles.model.AppInfo;
 import com.aarkir.tiles.model.Applications;
@@ -26,6 +27,8 @@ public class AppLauncher extends Activity implements AdapterView.OnItemClickList
     private ArrayList<AppInfo> apps;
     private SharedPreferences mSharedPreferences;
     private AsymmetricGridView listView;
+    private double maxFrequency;
+    private int columnCount = 7;
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -42,6 +45,10 @@ public class AppLauncher extends Activity implements AdapterView.OnItemClickList
                 getApps();
                 //initialize vars
                 loadAppsAndFrequencies();
+                //get maximum frequency
+                maxFrequency = getMaxFrequency(apps);
+                //set app positions and sizes
+                setSizesAndPositions(apps);
             }
         };
         Thread appLoaderThread = new Thread(null, viewApps, "AppLoaderThread");
@@ -50,11 +57,12 @@ public class AppLauncher extends Activity implements AdapterView.OnItemClickList
 
         //list for the grid view
         listView = (AsymmetricGridView) findViewById(R.id.listView);
-        listView.setRequestedColumnCount(5);
-        listView.setRequestedHorizontalSpacing(Utils.dpToPx(this, 0));
-        listView.setAdapter(getNewAdapter());
-        listView.setDebugging(true);
+        listView.setRequestedColumnCount(columnCount);
+        listView.setRequestedHorizontalSpacing(Utils.dpToPx(this, 3));
+        listView.setAllowReordering(true);
         listView.setOnItemClickListener(this);
+        listView.setOnItemLongClickListener(this);
+        listView.setAdapter(getNewAdapter());
     }
 
     private void getApps(){
@@ -104,6 +112,7 @@ public class AppLauncher extends Activity implements AdapterView.OnItemClickList
     public boolean onItemLongClick(AdapterView parentView, View childView, int position, long id) {
         // this will provide the value
         AppInfo rowClicked = (AppInfo) listView.getAdapter().getItem(position);
+        Toast.makeText(this, rowClicked.getAppName(), Toast.LENGTH_LONG).show();
         return false;
     }
 
@@ -142,5 +151,29 @@ public class AppLauncher extends Activity implements AdapterView.OnItemClickList
 
     private AsymmetricGridViewAdapter getNewAdapter() {
         return new AsymmetricGridViewAdapter(this, listView, appAdapter);
+    }
+
+    private double getMaxFrequency(ArrayList<AppInfo> items) {
+        double maxFrequency = 0;
+        for (AppInfo app : items) {
+            if (app.getFrequency() > maxFrequency) {
+                maxFrequency = app.getFrequency();
+            }
+        }
+        return maxFrequency;
+    }
+
+    private void setSizesAndPositions(ArrayList<AppInfo> apps) {
+        int size;
+        for (AppInfo app : apps) {
+            if (app.getFrequency() == 0) {
+                size = 1;
+            }
+            else {
+                size = (int) Math.ceil((app.getFrequency() / maxFrequency) * 0.5 * columnCount);
+            }
+            app.setColumnSpan(size);
+            app.setRowSpan(size);
+        }
     }
 }
