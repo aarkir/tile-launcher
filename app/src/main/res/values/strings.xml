@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">Tiles</string>
+
+    <string name="textview_text">SeekBarPreference test</string>
+
+    <string name="menu_settings">Settings</string>
+
+    <string name="maximumApps_message">Dialog Message</string>
+    <string name="maximumApps_summary">Current value is $1</string>
+    <string name="maximumApps_units">Apps</string>
+    <string name="maximumApps_title">Maximal Number of Apps per Column</string>
+
+    <string name="columnCount_message">Column Count Dialog Message</string>
+    <string name="columnCount_summary">Current value is $1</string>
+    <string name="columnCount_units">Columns</string>
+    <string name="columnCount_title">Number of Columns</string>
 </resources>

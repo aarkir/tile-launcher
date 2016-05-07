@@ -19,6 +19,15 @@ public class AppInfo implements AsymmetricItem {
     private int versionCode;
     private Drawable icon;
     private int frequency = 1;
+    private int backgroundColor;
+
+    public int getBackgroundColor() {
+        return backgroundColor;
+    }
+
+    public void setBackgroundColor(int backgroundColor) {
+        this.backgroundColor = backgroundColor;
+    }
 
     private int columnSpan;
     private int rowSpan;

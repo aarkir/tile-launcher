@@ -11,13 +11,21 @@
         android:description="@string/app_name">
         <activity android:name=".AppLauncher"
             android:label="AppLauncher"
-            android:launchMode="singleTask">
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.HOME"/>
             </intent-filter>
+        </activity>
+        <activity android:name=".Settings" android:label="@string/menu_settings"
+            android:screenOrientation="nosensor">
+            <intent-filer>
+                <action android:name=".Preferences" />
+                <category android:name="android.intent.cetagory.PREFERENCE" />
+            </intent-filer>
         </activity>
     </application>
 

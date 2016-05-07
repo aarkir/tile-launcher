@@ -1,6 +1,8 @@
 package com.aarkir.tiles;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Map;
 
 import android.app.Activity;
@@ -10,6 +12,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Toast;
@@ -17,7 +21,6 @@ import android.widget.Toast;
 import com.aarkir.tiles.model.AppInfo;
 import com.aarkir.tiles.model.Applications;
 import com.aarkir.tiles.widget.ApplicationAdapter;
-import com.felipecsl.asymmetricgridview.library.Utils;
 import com.felipecsl.asymmetricgridview.library.widget.AsymmetricGridView;
 import com.felipecsl.asymmetricgridview.library.widget.AsymmetricGridViewAdapter;
 
@@ -28,10 +31,12 @@ public class AppLauncher extends Activity implements AdapterView.OnItemClickList
     private SharedPreferences mSharedPreferences;
     private AsymmetricGridView listView;
     private double maxFrequency;
-    private int columnCount = 7;
+    private int columnCount = 60;
+    private int maximumApps = 5;
+    private AsymmetricGridViewAdapter listViewAdapter;
 
     @Override
-    public void onCreate(Bundle savedInstanceState){
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.activity_main);
 
@@ -39,16 +44,10 @@ public class AppLauncher extends Activity implements AdapterView.OnItemClickList
         apps = new ArrayList<>();
         //adapter
         appAdapter = new ApplicationAdapter(this, R.layout.applauncheritem, apps);
-         Runnable viewApps = new Runnable() {
+        Runnable viewApps = new Runnable() {
             @Override
             public void run() {
                 getApps();
-                //initialize vars
-                loadAppsAndFrequencies();
-                //get maximum frequency
-                maxFrequency = getMaxFrequency(apps);
-                //set app positions and sizes
-                setSizesAndPositions(apps);
             }
         };
         Thread appLoaderThread = new Thread(null, viewApps, "AppLoaderThread");
@@ -58,21 +57,28 @@ public class AppLauncher extends Activity implements AdapterView.OnItemClickList
         //list for the grid view
         listView = (AsymmetricGridView) findViewById(R.id.listView);
         listView.setRequestedColumnCount(columnCount);
-        listView.setRequestedHorizontalSpacing(Utils.dpToPx(this, 3));
-        listView.setAllowReordering(true);
+        //listView.setRequestedHorizontalSpacing(Utils.dpToPx(this, 3));
+        //listView.setAllowReordering(true);
         listView.setOnItemClickListener(this);
         listView.setOnItemLongClickListener(this);
-        listView.setAdapter(getNewAdapter());
+        listViewAdapter = new AsymmetricGridViewAdapter(this, listView, appAdapter);
+        listView.setAdapter(listViewAdapter);
     }
 
     private void getApps(){
         try{
             //generate app info for each app
-            Applications myApps = new Applications(getPackageManager());
-            //get app info
-            apps = myApps.getPackageList();
+            apps = new Applications(getPackageManager()).getApps();
+            //get frequency data for each app
+            loadFrequencies(apps);
+            //get the max frequency out of any app
+            maxFrequency = getMaxFrequency(apps);
+            //set app positions and sizes
+            setSizesAndPositions(apps);
+            //sort the apps by alphabet and size
+            sortApps(apps);
         }
-        catch(Exception exception){
+        catch(Exception exception) {
             Log.e("BACKGROUND PROC:", exception.getMessage());
         }
         this.runOnUiThread(returnRes);
@@ -98,7 +104,7 @@ public class AppLauncher extends Activity implements AdapterView.OnItemClickList
 
         //increase frequency of app clicked
         updateFrequency(rowClicked.getPackageName());
-        appAdapter.notifyDataSetChanged();
+        listViewAdapter.notifyDataSetChanged();
 
         Intent startApp = new Intent();
         ComponentName component = new ComponentName(rowClicked.getPackageName(), rowClicked.getClassName());
@@ -112,7 +118,7 @@ public class AppLauncher extends Activity implements AdapterView.OnItemClickList
     public boolean onItemLongClick(AdapterView parentView, View childView, int position, long id) {
         // this will provide the value
         AppInfo rowClicked = (AppInfo) listView.getAdapter().getItem(position);
-        Toast.makeText(this, rowClicked.getAppName(), Toast.LENGTH_LONG).show();
+        Toast.makeText(this, position + " " +rowClicked.getAppName(), Toast.LENGTH_SHORT).show();
         return false;
     }
 
@@ -132,7 +138,7 @@ public class AppLauncher extends Activity implements AdapterView.OnItemClickList
     }
 
     //load initial frequency data from the shared preferences
-    private void loadAppsAndFrequencies() {
+    private void loadFrequencies(ArrayList<AppInfo> apps) {
         //set shared preferences
         mSharedPreferences = getPreferences(MODE_PRIVATE);
 
@@ -145,12 +151,6 @@ public class AppLauncher extends Activity implements AdapterView.OnItemClickList
                 }
             }
         }
-
-        //sort list by usage, then alphabetically
-    }
-
-    private AsymmetricGridViewAdapter getNewAdapter() {
-        return new AsymmetricGridViewAdapter(this, listView, appAdapter);
     }
 
     private double getMaxFrequency(ArrayList<AppInfo> items) {
@@ -166,14 +166,52 @@ public class AppLauncher extends Activity implements AdapterView.OnItemClickList
     private void setSizesAndPositions(ArrayList<AppInfo> apps) {
         int size;
         for (AppInfo app : apps) {
-            if (app.getFrequency() == 0) {
-                size = 1;
-            }
-            else {
-                size = (int) Math.ceil((app.getFrequency() / maxFrequency) * 0.5 * columnCount);
+            size = (int) Math.ceil((app.getFrequency() / maxFrequency) * 0.5 * columnCount);
+            if (size < columnCount / maximumApps) {
+                size = columnCount / maximumApps;
             }
             app.setColumnSpan(size);
             app.setRowSpan(size);
         }
+    }
+
+    private void sortApps(ArrayList<AppInfo> apps) {
+        Collections.sort(apps, new Comparator<AppInfo>() {
+            @Override
+            public int compare(AppInfo a, AppInfo b) {
+                return a.getAppName().compareTo(b.getAppName());
+            }
+        });
+        Collections.sort(apps, new Comparator<AppInfo>() {
+            @Override
+            public int compare(AppInfo a, AppInfo b) {
+                return b.getColumnSpan() - a.getColumnSpan() ;
+            }
+        });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.menu_settings :
+                startActivity(new Intent(this, Settings.class));
+                break;
+        }
+        return true;
+    }
+
+    public void setColumnCount(int columnCount) {
+        this.columnCount = columnCount;
+    }
+
+    public void setMaximumApps(int maximumApps) {
+        this.maximumApps = maximumApps;
     }
 }

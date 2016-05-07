@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="preferences_screen">
+    <!--
+    <EditTextPreference
+        android:title="Your Name"
+        android:key="username"
+        android:summary="Please provide your username"/>
+    <CheckBoxPreference
+        android:title="Application Updates"
+        android:defaultValue="false"
+        android:summary="This option if selected will allow the application to check for latest versions."
+        android:key="applicationUpdates" />
+    <ListPreference
+        android:title="Download Details"
+        android:summary="Select the kind of data that you would like to download"
+        android:key="downloadType"
+        android:defaultValue="1"/>
+        -->
+    <com.aarkir.tiles.SeekBarPreference
+        android:defaultValue="5"
+        android:dialogMessage="@string/maximumApps_message"
+        android:key="maximumApps"
+        android:max="10"
+        android:summary="@string/maximumApps_summary"
+        android:text="@string/maximumApps_units"
+        android:title="@string/maximumApps_title" />
+    <com.aarkir.tiles.SeekBarPreference
+        android:defaultValue="50"
+        android:dialogMessage="@string/columnCount_message"
+        android:key="columnCount"
+        android:max="100"
+        android:summary="@string/columnCount_summary"
+        android:text="@string/columnCount_units"
+        android:title="@string/columnCount_title" />
+</PreferenceScreen>

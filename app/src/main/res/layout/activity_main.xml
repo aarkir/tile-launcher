@@ -9,7 +9,7 @@
         android:layout_height="match_parent"
         android:background="#ffffff"
         android:divider="@android:color/transparent"
-        android:dividerHeight="3dp"
+        android:dividerHeight="4dp"
         android:fadingEdge="none"
         android:focusable="false"
         android:gravity="center"

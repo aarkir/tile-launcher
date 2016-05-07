@@ -32,16 +32,6 @@ public class ApplicationAdapter extends ArrayAdapter<AppInfo> implements DemoAda
         //maxImageSize = Math.min(metrics.widthPixels, metrics.heightPixels) / 2;
     }
 
-    public ApplicationAdapter(Context context, List<AppInfo> items) {
-        super(context, 0, items);
-        layoutInflater = LayoutInflater.from(context);
-    }
-
-    public ApplicationAdapter(Context context) {
-        super(context, 0);
-        layoutInflater = LayoutInflater.from(context);
-    }
-
     @Override
     public View getView(int position, View convertView, ViewGroup parent){
         View view = convertView;
@@ -61,6 +51,7 @@ public class ApplicationAdapter extends ArrayAdapter<AppInfo> implements DemoAda
             //if the app has an icon
             if(appIcon != null) {
                 appIcon.setImageDrawable(appInfo.getIcon());
+                appIcon.setBackgroundColor(appInfo.getBackgroundColor());
                 /**
                 int imageSize = (int) (maxImageSize*appInfo.getFrequency()/maxFrequency);
                 if (imageSize < maxImageSize / 3) {
@@ -76,7 +67,7 @@ public class ApplicationAdapter extends ArrayAdapter<AppInfo> implements DemoAda
 
         return view;
     }
-
+/**
     @Override
     public int getViewTypeCount() {
         return 2;
@@ -86,7 +77,7 @@ public class ApplicationAdapter extends ArrayAdapter<AppInfo> implements DemoAda
     public int getItemViewType(int position) {
         return position % 2 == 0 ? 1 : 0;
     }
-
+**/
     @Override
     public void appendItems(List<AppInfo> newItems) {
         addAll(newItems);
