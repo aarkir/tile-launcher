@@ -13,6 +13,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.graphics.Palette;
 
+import com.aarkir.tiles.AppLauncher;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,7 +30,9 @@ public class Applications {
         this.packageManager = packageManager;
         activityList = this.createActivityList(); //used to find intent data to launch application
         apps = this.createApps();
-        setBackgrounds(apps);
+        if (AppLauncher.getBackgrounds()) {
+            setBackgrounds(apps);
+        }
     }
 
     private ArrayList<AppInfo> createApps() {

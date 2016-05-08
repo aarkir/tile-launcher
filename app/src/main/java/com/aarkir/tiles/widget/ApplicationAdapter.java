@@ -52,6 +52,7 @@ public class ApplicationAdapter extends ArrayAdapter<AppInfo> implements DemoAda
             if(appIcon != null) {
                 appIcon.setImageDrawable(appInfo.getIcon());
                 appIcon.setBackgroundColor(appInfo.getBackgroundColor());
+                //appIcon.selec
                 /**
                 int imageSize = (int) (maxImageSize*appInfo.getFrequency()/maxFrequency);
                 if (imageSize < maxImageSize / 3) {

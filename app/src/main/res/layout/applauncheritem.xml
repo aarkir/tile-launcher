@@ -4,4 +4,5 @@
     android:id="@+id/icon"
     android:layout_width="?android:attr/listPreferredItemHeight"
     android:layout_height="?android:attr/listPreferredItemHeight"
-    android:layout_margin="0dp"/>
+    android:background="?android:selectableItemBackground"
+    android:layout_margin="0dp" />

@@ -1,3 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
-<items version="2" />
+<items version="2" >
 
+    <item
+        jar="C:\Users\arn68412\Documents\GitHub\tile-launcher\app\build\intermediates\incremental-classes\debug\instant-run-bootstrap.jar"
+        jumboMode="true"
+        revision="23.0.2"
+        sha1="802f9d47a79333e39241d7020aaea366996a5313">
+        <dex dex="C:\Users\arn68412\Documents\GitHub\tile-launcher\app\build\intermediates\transforms\dex\debug\folders\1000\10\instant-run-bootstrap_e3c9016e34effa20c596f790658703e2958e2497\classes.dex" />
+    </item>
+    <item
+        jar="C:\Users\arn68412\Documents\GitHub\tile-launcher\app\build\intermediates\exploded-aar\com.felipecsl.asymmetricgridview\library\2.0.1\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.2"
+        sha1="cbfc065e5d005dda42cc7dd58d477e2f29926f0e">
+        <dex dex="C:\Users\arn68412\Documents\GitHub\tile-launcher\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.felipecsl.asymmetricgridview-library-2.0.1_37d888c9b56f53342b50c559d4c9520849af94f9\classes.dex" />
+    </item>
+    <item
+        jar="C:\Users\arn68412\Documents\GitHub\tile-launcher\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\23.2.1\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.2"
+        sha1="e4d0cbb0b999604b349062f0214a0a228a7fd151">
+        <dex dex="C:\Users\arn68412\Documents\GitHub\tile-launcher\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.android.support-appcompat-v7-23.2.1_0a3874a29df58ce70550c3681b6a5ed30b45691a\classes.dex" />
+    </item>
+    <item
+        jar="C:\Users\arn68412\Documents\GitHub\tile-launcher\app\build\intermediates\exploded-aar\com.android.support\support-vector-drawable\23.2.1\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.2"
+        sha1="673d77a5bbddd766037f088e775df525c46407f0">
+        <dex dex="C:\Users\arn68412\Documents\GitHub\tile-launcher\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.android.support-support-vector-drawable-23.2.1_9a85c3adadd7c3993913db7a1e8f2161ee9cb8b7\classes.dex" />
+    </item>
+    <item
+        jar="C:\Users\arn68412\Documents\GitHub\tile-launcher\app\build\intermediates\exploded-aar\com.android.support\palette-v7\23.2.1\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.2"
+        sha1="bcee2598dbb74f6d043225a0d7e178b0c7ea4006">
+        <dex dex="C:\Users\arn68412\Documents\GitHub\tile-launcher\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.android.support-palette-v7-23.2.1_35b6ce882dfaa1f8b5ee46bd683c46547a15a5fd\classes.dex" />
+    </item>
+    <item
+        jar="C:\Users\arn68412\AppData\Local\Android\sdk\extras\android\m2repository\com\android\support\support-annotations\23.2.1\support-annotations-23.2.1.jar"
+        jumboMode="true"
+        revision="23.0.2"
+        sha1="ccb693bc0774fcb637246f7360de25b4af7df318">
+        <dex dex="C:\Users\arn68412\Documents\GitHub\tile-launcher\app\build\intermediates\transforms\dex\debug\folders\1000\10\support-annotations-23.2.1_227cdc217184e1bf9f9daed2f2254df67583dd68\classes.dex" />
+    </item>
+    <item
+        jar="C:\Users\arn68412\Documents\GitHub\tile-launcher\app\build\intermediates\exploded-aar\com.android.support\support-v4\23.2.1\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.2"
+        sha1="3be474b1b21b31cf2fa93fe6bd641ae108d96452">
+        <dex dex="C:\Users\arn68412\Documents\GitHub\tile-launcher\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.android.support-support-v4-23.2.1_02b0651b0d464ec5df107fb6033244e8a5d2705b\classes.dex" />
+    </item>
+    <item
+        jar="C:\Users\arn68412\Documents\GitHub\tile-launcher\app\build\intermediates\exploded-aar\com.android.support\animated-vector-drawable\23.2.1\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.2"
+        sha1="3469cb457f10f74c28cbc05f069b6c894f6cbdd0">
+        <dex dex="C:\Users\arn68412\Documents\GitHub\tile-launcher\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.android.support-animated-vector-drawable-23.2.1_1d25e768aa55503c4781b9d8f7ec4f41fa999a7d\classes.dex" />
+    </item>
+    <item
+        jar="C:\Users\arn68412\Documents\GitHub\tile-launcher\app\build\intermediates\exploded-aar\com.android.support\support-v4\23.2.1\jars\libs\internal_impl-23.2.1.jar"
+        jumboMode="true"
+        revision="23.0.2"
+        sha1="607a3d0b8013b4ccbfeb0b7cb293351994e021fb">
+        <dex dex="C:\Users\arn68412\Documents\GitHub\tile-launcher\app\build\intermediates\transforms\dex\debug\folders\1000\10\internal_impl-23.2.1_91cdfb7569ed09370446f31a7127e4021cded566\classes.dex" />
+    </item>
+    <item
+        jar="C:\Users\arn68412\Documents\GitHub\tile-launcher\app\build\intermediates\incremental-runtime-classes\debug\instant-run.jar"
+        jumboMode="true"
+        revision="23.0.2"
+        sha1="cd86dc025b111b2b27e63fb658b1641fc6c515c7">
+        <dex dex="C:\Users\arn68412\Documents\GitHub\tile-launcher\app\build\intermediates\transforms\dex\debug\folders\1000\10\instant-run_d0fc30708b2023ac05498df47f0e4590344fab21\classes.dex" />
+    </item>
+
+</items>

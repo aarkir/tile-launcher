@@ -6,15 +6,21 @@ import java.util.Comparator;
 import java.util.Map;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.app.WallpaperManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.text.Layout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Toast;
 
@@ -31,14 +37,22 @@ public class AppLauncher extends Activity implements AdapterView.OnItemClickList
     private SharedPreferences mSharedPreferences;
     private AsymmetricGridView listView;
     private double maxFrequency;
-    private int columnCount = 60;
-    private int maximumApps = 5;
+
+    //Settings
+    private static int columnDivisions;
+    private static int columns;
+    private static boolean backgrounds = false;
+    private static boolean sizeSort = false;
+
     private AsymmetricGridViewAdapter listViewAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.activity_main);
+
+        getSettings();
+        findViewById(R.id.listView).setBackgroundDrawable(WallpaperManager.getInstance(this).getDrawable());
 
         //list of apps
         apps = new ArrayList<>();
@@ -56,16 +70,16 @@ public class AppLauncher extends Activity implements AdapterView.OnItemClickList
 
         //list for the grid view
         listView = (AsymmetricGridView) findViewById(R.id.listView);
-        listView.setRequestedColumnCount(columnCount);
-        //listView.setRequestedHorizontalSpacing(Utils.dpToPx(this, 3));
-        //listView.setAllowReordering(true);
+        listView.setRequestedColumnCount(columns * columnDivisions);
+        listView.setRequestedHorizontalSpacing(Utils.dpToPx(this, 0));
+        listView.setAllowReordering(true);
         listView.setOnItemClickListener(this);
         listView.setOnItemLongClickListener(this);
         listViewAdapter = new AsymmetricGridViewAdapter(this, listView, appAdapter);
         listView.setAdapter(listViewAdapter);
     }
 
-    private void getApps(){
+    private void getApps() {
         try{
             //generate app info for each app
             apps = new Applications(getPackageManager()).getApps();
@@ -105,6 +119,7 @@ public class AppLauncher extends Activity implements AdapterView.OnItemClickList
         //increase frequency of app clicked
         updateFrequency(rowClicked.getPackageName());
         listViewAdapter.notifyDataSetChanged();
+        appAdapter.notifyDataSetChanged();
 
         Intent startApp = new Intent();
         ComponentName component = new ComponentName(rowClicked.getPackageName(), rowClicked.getClassName());
@@ -117,8 +132,27 @@ public class AppLauncher extends Activity implements AdapterView.OnItemClickList
     @Override
     public boolean onItemLongClick(AdapterView parentView, View childView, int position, long id) {
         // this will provide the value
-        AppInfo rowClicked = (AppInfo) listView.getAdapter().getItem(position);
-        Toast.makeText(this, position + " " +rowClicked.getAppName(), Toast.LENGTH_SHORT).show();
+        final AppInfo rowClicked = (AppInfo) listView.getAdapter().getItem(position);
+        //Toast.makeText(this, rowClicked.getColumnSpan() + " " +rowClicked.getClassName(), Toast.LENGTH_SHORT).show();
+
+        //show dialog with app menu
+        View view = getLayoutInflater().inflate(R.layout.app_menu, (ViewGroup) findViewById(R.id.about_layout), false);
+        view.findViewById(R.id.uninstall).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                uninstall(rowClicked);
+                //!! close dialog
+                //!! refresh screen to remove missing app
+                listViewAdapter.notifyDataSetChanged();
+                appAdapter.notifyDataSetChanged();
+            }
+        });
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setIcon(rowClicked.getIcon());
+        builder.setTitle(rowClicked.getAppName());
+        builder.setView(view);
+        builder.create();
+        builder.show();
         return false;
     }
 
@@ -166,9 +200,9 @@ public class AppLauncher extends Activity implements AdapterView.OnItemClickList
     private void setSizesAndPositions(ArrayList<AppInfo> apps) {
         int size;
         for (AppInfo app : apps) {
-            size = (int) Math.ceil((app.getFrequency() / maxFrequency) * 0.5 * columnCount);
-            if (size < columnCount / maximumApps) {
-                size = columnCount / maximumApps;
+            size = (int) Math.ceil((app.getFrequency() / maxFrequency) * 0.5 * columnDivisions * columns);
+            if (size < columnDivisions) {
+                size = columnDivisions;
             }
             app.setColumnSpan(size);
             app.setRowSpan(size);
@@ -182,17 +216,18 @@ public class AppLauncher extends Activity implements AdapterView.OnItemClickList
                 return a.getAppName().compareTo(b.getAppName());
             }
         });
-        Collections.sort(apps, new Comparator<AppInfo>() {
-            @Override
-            public int compare(AppInfo a, AppInfo b) {
-                return b.getColumnSpan() - a.getColumnSpan() ;
-            }
-        });
+        if (sizeSort) {
+            Collections.sort(apps, new Comparator<AppInfo>() {
+                @Override
+                public int compare(AppInfo a, AppInfo b) {
+                    return b.getColumnSpan() - a.getColumnSpan() ;
+                }
+            });
+        }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
@@ -207,11 +242,36 @@ public class AppLauncher extends Activity implements AdapterView.OnItemClickList
         return true;
     }
 
-    public void setColumnCount(int columnCount) {
-        this.columnCount = columnCount;
+    private void getSettings() {
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        columnDivisions = settings.getInt("columnDivisions", 2);
+        columns = settings.getInt("columns", 5);
+        backgrounds = settings.getBoolean("backgrounds", false);
+        sizeSort = settings.getBoolean("sizeSort", false);
     }
 
-    public void setMaximumApps(int maximumApps) {
-        this.maximumApps = maximumApps;
+    public static boolean getBackgrounds() {
+        return backgrounds;
+    }
+
+    public static void setBackgrounds(boolean backgrounds) {
+        AppLauncher.backgrounds = backgrounds;
+    }
+
+    public static void setColumnCount(int columnDivisions) {
+        AppLauncher.columnDivisions = columnDivisions;
+    }
+
+    public static void setMaximumApps(int columns) {
+        AppLauncher.columns = columns;
+    }
+
+    public static void setSizeSort(boolean sizeSort) {
+        AppLauncher.sizeSort = sizeSort;
+    }
+
+    private void uninstall(AppInfo rowClicked) {
+        Intent intent = new Intent(Intent.ACTION_DELETE, Uri.parse("package:"+rowClicked.getPackageName()));
+        startActivity(intent);
     }
 }

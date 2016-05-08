@@ -7,11 +7,6 @@
         android:title="Your Name"
         android:key="username"
         android:summary="Please provide your username"/>
-    <CheckBoxPreference
-        android:title="Application Updates"
-        android:defaultValue="false"
-        android:summary="This option if selected will allow the application to check for latest versions."
-        android:key="applicationUpdates" />
     <ListPreference
         android:title="Download Details"
         android:summary="Select the kind of data that you would like to download"
@@ -20,18 +15,28 @@
         -->
     <com.aarkir.tiles.SeekBarPreference
         android:defaultValue="5"
-        android:dialogMessage="@string/maximumApps_message"
-        android:key="maximumApps"
+        android:dialogMessage="@string/columns_message"
+        android:key="columns"
         android:max="10"
-        android:summary="@string/maximumApps_summary"
-        android:text="@string/maximumApps_units"
-        android:title="@string/maximumApps_title" />
+        android:summary="@string/columns_summary"
+        android:text="@string/columns_units"
+        android:title="@string/columns_title" />
     <com.aarkir.tiles.SeekBarPreference
-        android:defaultValue="50"
-        android:dialogMessage="@string/columnCount_message"
-        android:key="columnCount"
+        android:defaultValue="2"
+        android:dialogMessage="@string/columnDivisions_message"
+        android:key="columnDivisions"
         android:max="100"
-        android:summary="@string/columnCount_summary"
-        android:text="@string/columnCount_units"
-        android:title="@string/columnCount_title" />
+        android:summary="@string/columnDivisions_summary"
+        android:text="@string/columnDivisions_units"
+        android:title="@string/columnDivisions_title" />
+    <CheckBoxPreference
+        android:title="Icon Backgrounds"
+        android:defaultValue="true"
+        android:summary="If selected app icons will have a background with their primary vibrant color."
+        android:key="backgrounds" />
+    <CheckBoxPreference
+        android:title="Sort Apps by Size"
+        android:defaultValue="false"
+        android:summary="If selected apps will be sorted by their size, then alphabetically."
+        android:key="sizeSort" />
 </PreferenceScreen>
