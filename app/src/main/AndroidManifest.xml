@@ -22,10 +22,10 @@
         </activity>
         <activity android:name=".Settings" android:label="@string/menu_settings"
             android:screenOrientation="nosensor">
-            <intent-filer>
+            <intent-filter>
                 <action android:name=".Preferences" />
                 <category android:name="android.intent.cetagory.PREFERENCE" />
-            </intent-filer>
+            </intent-filter>
         </activity>
     </application>
 

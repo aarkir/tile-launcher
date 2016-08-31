@@ -12,4 +12,14 @@
     <string name="columnDivisions_summary">Current: $1</string>
     <string name="columnDivisions_units">Divisions</string>
     <string name="columnDivisions_title">Number of Column Divisions</string>
+
+    <string name="largestSize_message">What percent of the screen should the largest icon be?</string>
+    <string name="largestSize_summary">Current: $1%</string>
+    <string name="largestSize_units">%</string>
+    <string name="largestSize_title">Largest App Size</string>
+
+    <string name="margin_message">How large should the margins around app icons be?</string>
+    <string name="margin_summary">Current: $1</string>
+    <string name="margin_units">dp</string>
+    <string name="margin_title">Margin Size</string>
 </resources>

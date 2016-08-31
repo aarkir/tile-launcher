@@ -2,19 +2,8 @@
 <PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:key="preferences_screen">
-    <!--
-    <EditTextPreference
-        android:title="Your Name"
-        android:key="username"
-        android:summary="Please provide your username"/>
-    <ListPreference
-        android:title="Download Details"
-        android:summary="Select the kind of data that you would like to download"
-        android:key="downloadType"
-        android:defaultValue="1"/>
-        -->
     <com.aarkir.tiles.SeekBarPreference
-        android:defaultValue="5"
+        android:defaultValue="6"
         android:dialogMessage="@string/columns_message"
         android:key="columns"
         android:max="10"
@@ -22,16 +11,34 @@
         android:text="@string/columns_units"
         android:title="@string/columns_title" />
     <com.aarkir.tiles.SeekBarPreference
-        android:defaultValue="2"
+        android:defaultValue="1"
         android:dialogMessage="@string/columnDivisions_message"
         android:key="columnDivisions"
-        android:max="100"
+        android:max="4"
         android:summary="@string/columnDivisions_summary"
         android:text="@string/columnDivisions_units"
         android:title="@string/columnDivisions_title" />
+    <com.aarkir.tiles.SeekBarPreference
+        android:defaultValue="50"
+        android:dialogMessage="@string/largestSize_message"
+        android:key="largestSize"
+        android:max="100"
+        android:summary="@string/largestSize_summary"
+        android:text="@string/largestSize_units"
+        android:title="@string/largestSize_title" />
+    <!--
+    <com.aarkir.tiles.SeekBarPreference
+        android:defaultValue="0"
+        android:dialogMessage="@string/margin_message"
+        android:key="margin"
+        android:max="10"
+        android:summary="@string/margin_summary"
+        android:text="@string/margin_units"
+        android:title="@string/margin_title" />
+        -->
     <CheckBoxPreference
         android:title="Icon Backgrounds"
-        android:defaultValue="true"
+        android:defaultValue="false"
         android:summary="If selected app icons will have a background with their primary vibrant color."
         android:key="backgrounds" />
     <CheckBoxPreference
@@ -39,4 +46,9 @@
         android:defaultValue="false"
         android:summary="If selected apps will be sorted by their size, then alphabetically."
         android:key="sizeSort" />
+    <Preference
+        android:title="Reset App Frequencies"
+        android:key="resetFrequencies"
+        android:summary="Reset stored frequency data. All apps will be the same size"
+        />
 </PreferenceScreen>

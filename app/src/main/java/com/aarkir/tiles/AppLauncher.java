@@ -5,42 +5,45 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.app.WallpaperManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.text.Layout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.Toast;
 
 import com.aarkir.tiles.model.AppInfo;
 import com.aarkir.tiles.model.Applications;
 import com.aarkir.tiles.widget.ApplicationAdapter;
-import com.felipecsl.asymmetricgridview.library.widget.AsymmetricGridView;
-import com.felipecsl.asymmetricgridview.library.widget.AsymmetricGridViewAdapter;
+import com.felipecsl.asymmetricgridview.AsymmetricGridView;
+import com.felipecsl.asymmetricgridview.AsymmetricGridViewAdapter;
+import com.felipecsl.asymmetricgridview.Utils;
+
 
 public class AppLauncher extends Activity implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener{
     private ApplicationAdapter appAdapter;
-    private ProgressDialog progressDialog;
-    private ArrayList<AppInfo> apps;
-    private SharedPreferences mSharedPreferences;
+    private static ArrayList<AppInfo> apps;
+    private static SharedPreferences mSharedPreferences;
     private AsymmetricGridView listView;
     private double maxFrequency;
+    private static SharedPreferences.Editor mSharedPreferencesEditor;
 
     //Settings
-    private static int columnDivisions;
-    private static int columns;
+    private static int columnDivisions; //number of divisions per column - used to theoretically create more random looks
+    private static int columns; //number of full columns
+    private static double largestSize; //largest size of an app on the screen, in an int from 0-100
     private static boolean backgrounds = false;
     private static boolean sizeSort = false;
 
@@ -49,6 +52,7 @@ public class AppLauncher extends Activity implements AdapterView.OnItemClickList
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        hideStatusBar();
         this.setContentView(R.layout.activity_main);
 
         getSettings();
@@ -66,12 +70,12 @@ public class AppLauncher extends Activity implements AdapterView.OnItemClickList
         };
         Thread appLoaderThread = new Thread(null, viewApps, "AppLoaderThread");
         appLoaderThread.start();
-        progressDialog = ProgressDialog.show(AppLauncher.this, "Hold on...", "Loading your apps...", true);
+        //progressDialog = ProgressDialog.show(AppLauncher.this, "Hold on...", "Loading your apps...", true);
 
         //list for the grid view
         listView = (AsymmetricGridView) findViewById(R.id.listView);
         listView.setRequestedColumnCount(columns * columnDivisions);
-        listView.setRequestedHorizontalSpacing(Utils.dpToPx(this, 0));
+        listView.setRequestedHorizontalSpacing(Utils.dpToPx(this, 3));
         listView.setAllowReordering(true);
         listView.setOnItemClickListener(this);
         listView.setOnItemLongClickListener(this);
@@ -86,7 +90,7 @@ public class AppLauncher extends Activity implements AdapterView.OnItemClickList
             //get frequency data for each app
             loadFrequencies(apps);
             //get the max frequency out of any app
-            maxFrequency = getMaxFrequency(apps);
+            maxFrequency = getMaxFrequencies(apps);
             //set app positions and sizes
             setSizesAndPositions(apps);
             //sort the apps by alphabet and size
@@ -101,14 +105,13 @@ public class AppLauncher extends Activity implements AdapterView.OnItemClickList
     private Runnable returnRes = new Runnable(){
         public void run(){
             if(apps != null && apps.size() > 0){
-                appAdapter.notifyDataSetChanged();
+                //listViewAdapter.notifyDataSetChanged();
 
                 for(AppInfo app : apps){
                     appAdapter.add(app);
                 }
             }
-            progressDialog.dismiss();
-            appAdapter.notifyDataSetChanged();
+            //progressDialog.dismiss();
         }
     };
 
@@ -118,8 +121,9 @@ public class AppLauncher extends Activity implements AdapterView.OnItemClickList
 
         //increase frequency of app clicked
         updateFrequency(rowClicked.getPackageName());
-        listViewAdapter.notifyDataSetChanged();
-        appAdapter.notifyDataSetChanged();
+        //appAdapter.notifyDataSetChanged();
+        //listViewAdapter.notifyDataSetChanged();
+        updateApps();
 
         Intent startApp = new Intent();
         ComponentName component = new ComponentName(rowClicked.getPackageName(), rowClicked.getClassName());
@@ -143,8 +147,9 @@ public class AppLauncher extends Activity implements AdapterView.OnItemClickList
                 uninstall(rowClicked);
                 //!! close dialog
                 //!! refresh screen to remove missing app
-                listViewAdapter.notifyDataSetChanged();
-                appAdapter.notifyDataSetChanged();
+                //appAdapter.notifyDataSetChanged();
+                //listViewAdapter.notifyDataSetChanged();
+                updateApps();
             }
         });
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -156,8 +161,32 @@ public class AppLauncher extends Activity implements AdapterView.OnItemClickList
         return false;
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //updateApps();
+    }
+
+    private void updateApps() {
+        apps.clear();
+        appAdapter = new ApplicationAdapter(this, R.layout.applauncheritem, apps);
+        Runnable viewApps = new Runnable() {
+            @Override
+            public void run() {
+                getApps();
+            }
+        };
+        new Thread(null, viewApps, "AppLoaderThread").start();
+
+        listViewAdapter = new AsymmetricGridViewAdapter(this, listView, appAdapter);
+        listView.setAdapter(listViewAdapter);
+
+        //List<AppInfo> fakeApps = new ArrayList<>();
+        //appAdapter.appendItems(fakeApps);
+    }
+
     private void updateFrequency(String packageName) {
-        SharedPreferences.Editor mSharedPreferencesEditor = mSharedPreferences.edit();
+        mSharedPreferencesEditor = mSharedPreferences.edit();
 
         //increase the value of the package name by 1
         for (AppInfo app : apps) {
@@ -187,25 +216,37 @@ public class AppLauncher extends Activity implements AdapterView.OnItemClickList
         }
     }
 
-    private double getMaxFrequency(ArrayList<AppInfo> items) {
-        double maxFrequency = 0;
-        for (AppInfo app : items) {
-            if (app.getFrequency() > maxFrequency) {
-                maxFrequency = app.getFrequency();
-            }
+    private double getMaxFrequencies(ArrayList<AppInfo> items) {
+
+
+        for (int i = 0; i < maxCount; i++) {
+            maxFrequencies[i] = apps.get(n*i).getFrequency();
         }
-        return maxFrequency;
+
+        return maxFrequencies;
     }
 
     private void setSizesAndPositions(ArrayList<AppInfo> apps) {
+        int maxCount = ((int) largestSize/100*columns*columnDivisions) - 1; //number of max elements
+        double[] maxFrequencies = new double[maxCount]; //max frequencies of top apps
+        int n = 3; //number of apps of a certain size
+
+        Collections.sort(apps, new Comparator<AppInfo>() {
+            @Override
+            public int compare(AppInfo a, AppInfo b) {
+                return a.getFrequency() - b.getFrequency();
+            }
+        });
+
         int size;
-        for (AppInfo app : apps) {
-            size = (int) Math.ceil((app.getFrequency() / maxFrequency) * 0.5 * columnDivisions * columns);
-            if (size < columnDivisions) {
+        for (int i = 0; i < apps.size(); i++) {
+            size = (int) ;
+            size = (int) Math.ceil((app.getFrequency() / maxFrequency) * largestSize / 100 * columnDivisions * columns);
+            if (size < columnDivisions) { //less than 1 full column
                 size = columnDivisions;
             }
-            app.setColumnSpan(size);
-            app.setRowSpan(size);
+            apps.get(i).setColumnSpan(size);
+            apps.get(i).setRowSpan(size);
         }
     }
 
@@ -244,8 +285,9 @@ public class AppLauncher extends Activity implements AdapterView.OnItemClickList
 
     private void getSettings() {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        columnDivisions = settings.getInt("columnDivisions", 2);
-        columns = settings.getInt("columns", 5);
+        columns = settings.getInt("columns", 6);
+        columnDivisions = settings.getInt("columnDivisions", 1);
+        largestSize = settings.getInt("largestSize", 50);
         backgrounds = settings.getBoolean("backgrounds", false);
         sizeSort = settings.getBoolean("sizeSort", false);
     }
@@ -266,6 +308,10 @@ public class AppLauncher extends Activity implements AdapterView.OnItemClickList
         AppLauncher.columns = columns;
     }
 
+    public static void setLargestSize(int largestSize) {
+        AppLauncher.largestSize = largestSize;
+    }
+
     public static void setSizeSort(boolean sizeSort) {
         AppLauncher.sizeSort = sizeSort;
     }
@@ -273,5 +319,42 @@ public class AppLauncher extends Activity implements AdapterView.OnItemClickList
     private void uninstall(AppInfo rowClicked) {
         Intent intent = new Intent(Intent.ACTION_DELETE, Uri.parse("package:"+rowClicked.getPackageName()));
         startActivity(intent);
+    }
+
+    public static void resetFrequencies() {
+        //set shared preferences
+        mSharedPreferencesEditor = mSharedPreferences.edit();
+
+        /*
+        //for each item in shared preferences
+        for(Map.Entry<String, ?> entry : mSharedPreferences.getAll().entrySet()) {
+            for (AppInfo app : apps) {
+                if (app.getPackageName().contains(".")) {
+                    app.setFrequency(0);
+                    break;
+                }
+            }
+        }*/
+
+        mSharedPreferencesEditor.clear();
+
+        mSharedPreferencesEditor.apply();
+    }
+
+    private void hideStatusBar() {
+        if (Build.VERSION.SDK_INT < 16) {
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        }
+        else {
+            View decorView = getWindow().getDecorView();
+            // Hide the status bar.
+            int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+            decorView.setSystemUiVisibility(uiOptions);
+            // Remember that you should never show the action bar if the
+            // status bar is hidden, so hide that too if necessary.
+            ActionBar actionBar = getActionBar();
+            actionBar.hide();
+        }
     }
 }

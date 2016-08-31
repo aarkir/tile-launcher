@@ -52,33 +52,12 @@ public class ApplicationAdapter extends ArrayAdapter<AppInfo> implements DemoAda
             if(appIcon != null) {
                 appIcon.setImageDrawable(appInfo.getIcon());
                 appIcon.setBackgroundColor(appInfo.getBackgroundColor());
-                //appIcon.selec
-                /**
-                int imageSize = (int) (maxImageSize*appInfo.getFrequency()/maxFrequency);
-                if (imageSize < maxImageSize / 3) {
-                    imageSize = maxImageSize / 3;
-                }
-                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(imageSize, imageSize);
-                layoutParams.leftMargin = imageSize;
-                layoutParams.topMargin = imageSize;
-                appIcon.setLayoutParams(layoutParams);
-                 **/
             }
         }
 
         return view;
     }
-/**
-    @Override
-    public int getViewTypeCount() {
-        return 2;
-    }
 
-    @Override
-    public int getItemViewType(int position) {
-        return position % 2 == 0 ? 1 : 0;
-    }
-**/
     @Override
     public void appendItems(List<AppInfo> newItems) {
         addAll(newItems);

@@ -9,7 +9,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
-import com.felipecsl.asymmetricgridview.library.model.AsymmetricItem;
+import com.felipecsl.asymmetricgridview.AsymmetricItem;
 
 public class AppInfo implements AsymmetricItem {
     private String appName;
